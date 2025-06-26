@@ -6,14 +6,12 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import coil.load
-import coil.transform.RoundedCornersTransformation
 import com.abdulkadirkara.paginationsimple.R
 import com.abdulkadirkara.paginationsimple.databinding.FragmentDetailBinding
+import com.abdulkadirkara.paginationsimple.util.ImageShape
+import com.abdulkadirkara.paginationsimple.util.loadImage
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -39,10 +37,11 @@ class DetailFragment : Fragment() {
         // XML'e bind işlemleri
         binding.apply {
             // Coil ile yuvarlatılmış profil resmi yükle
-            imageProfile.load(user.picture.large) {
-                crossfade(true)
-                transformations(RoundedCornersTransformation(60f)) // oval köşeler
-            }
+            imageProfile.loadImage(
+                url = user.picture.large,
+                shape = ImageShape.ROUNDED,
+                cornerRadius = 60f
+            )
 
             textFullName.text = "${user.name.title} ${user.name.first} ${user.name.last}"
 

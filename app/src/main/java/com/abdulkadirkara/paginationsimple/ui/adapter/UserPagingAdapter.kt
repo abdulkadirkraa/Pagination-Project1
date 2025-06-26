@@ -8,9 +8,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.abdulkadirkara.paginationsimple.databinding.ItemUsersBinding
 import com.abdulkadirkara.paginationsimple.data.model.Result
+import com.abdulkadirkara.paginationsimple.util.ImageShape
+import com.abdulkadirkara.paginationsimple.util.loadImage
 import javax.inject.Inject
-import coil.load
-import coil.transform.CircleCropTransformation
+
 
 class UserPagingAdapter @Inject constructor() : PagingDataAdapter<Result, UserPagingAdapter.UserPagingViewHolder>(UserComparator) {
 
@@ -23,12 +24,10 @@ class UserPagingAdapter @Inject constructor() : PagingDataAdapter<Result, UserPa
                 tvName.text = "${item.name.first} ${item.name.last}"
                 tvMail.text = item.email
                 tvPhone.text = item.phone
-                val imageUrl = item.picture.thumbnail
-                ivPhoto.load(imageUrl){
-                    transformations(CircleCropTransformation())
-                    crossfade(true)
-                    crossfade(500)
-                }
+                ivPhoto.loadImage(
+                    url = item.picture.large,
+                    shape = ImageShape.CIRCLE
+                )
 
                 root.setOnClickListener {
                     onItemClick?.invoke(item)
