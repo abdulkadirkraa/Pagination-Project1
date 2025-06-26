@@ -84,8 +84,8 @@ class HomeFragment : Fragment() {
             append = LoadState.Loading/NotLoading/Error
         )
         LoadState Alanı	Ne Zaman Kullanılır?
-        refresh =	İlk yükleme veya listeyi yenilemede
-        append =    Sonraki sayfaları yüklerken, Listeye aşağıdan yeni sayfa ekleme
+        refresh =	İlk yükleme veya listeyi yenilemede / Uygulama ilk açıldığında ya da yenilemede
+        append =    Sonraki sayfaları yüklerken, Listeye aşağıdan yeni sayfa ekleme / Liste aşağı kaydırıldığında yeni veri yüklenirken
         prepend =	(Kullanılmaz genelde ama) başa veri eklerken, Yukarıya yeni veri ekleme
 
         adapter.addLoadStateListener { loadState ->
@@ -170,6 +170,7 @@ class HomeFragment : Fragment() {
     private fun handleRetry() {
         binding.buttonRetry.setOnClickListener {
             //retry() ile tekrar yükleme yapılır bunu da pagingsource'daki loglarla görebiliriz.
+            //önceki başarısız olmuş veri yükleme işlemini tekrar denemek için
             userPagingAdapter.retry()
             Snackbar.make(it, "Retry called", Snackbar.LENGTH_SHORT).show()
         }
