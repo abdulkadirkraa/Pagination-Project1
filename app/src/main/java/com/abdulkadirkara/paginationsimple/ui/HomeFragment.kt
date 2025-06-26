@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.abdulkadirkara.paginationsimple.databinding.FragmentHomeBinding
 import com.abdulkadirkara.paginationsimple.ui.adapter.UserPagingAdapter
@@ -65,9 +64,37 @@ class HomeFragment : Fragment() {
             findNavController().navigate(action)
         }
 
+
+        /*
         //Listener ile load state kullanımı
         //1)load state flow
-        /*
+        LoadState(
+            refresh = LoadState.Loading/NotLoading/Error,
+            prepend = LoadState.Loading/NotLoading/Error,
+            append = LoadState.Loading/NotLoading/Error
+        )
+        LoadState Alanı	Ne Zaman Kullanılır?
+        refresh =	İlk yükleme veya listeyi yenilemede
+        append =    Sonraki sayfaları yüklerken, Listeye aşağıdan yeni sayfa ekleme
+        prepend =	(Kullanılmaz genelde ama) başa veri eklerken, Yukarıya yeni veri ekleme
+
+        adapter.addLoadStateListener { loadState ->
+            // Loading göster
+            progressBar.isVisible = loadState.source.refresh is LoadState.Loading
+            // Hata durumunu yakala
+            val errorState = loadState.source.refresh as? LoadState.Error
+                ?: loadState.source.append as? LoadState.Error
+            errorState?.let {
+                Toast.makeText(context, "Hata: ${it.error.localizedMessage}", Toast.LENGTH_SHORT).show()
+            }
+            // Retry butonunu göster/gizle
+            retryButton.isVisible = loadState.source.refresh is LoadState.Error
+        }
+
+        Hataları ya da yükleniyor göstergelerini listeye item gibi eklemek istersen:
+        val adapter = MyPagingAdapter().withLoadStateFooter(footer = MyLoadStateAdapter { adapter.retry() })
+
+
         viewLifecycleOwner.lifecycleScope.launch {
             userPagingAdapter.loadStateFlow.collectLatest {
                 when(it) {

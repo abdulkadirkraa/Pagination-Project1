@@ -4,6 +4,7 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.abdulkadirkara.paginationsimple.data.model.Result
 import com.abdulkadirkara.paginationsimple.data.service.ApiService
+import com.abdulkadirkara.paginationsimple.util.Constants.PAGE_SIZE
 
 class RandomUserPagingSource(
     private val apiService: ApiService
@@ -13,7 +14,7 @@ class RandomUserPagingSource(
         val page = params.key ?: 1
 
         return try {
-            val response = apiService.getUsers(page, 10)
+            val response = apiService.getUsers(page, PAGE_SIZE)
 
             LoadResult.Page(
                 data = response.results,
@@ -26,13 +27,23 @@ class RandomUserPagingSource(
     }
 
     override fun getRefreshKey(state: PagingState<Int, Result>): Int? {
-        /*
         return state.anchorPosition?.let { anchorPosition ->
-      val anchorPage = state.closestPageToPosition(anchorPosition)
-      anchorPage?.prevKey?.plus(1) ?: anchorPage?.nextKey?.minus(1)
-    }
-         */
-        return null
+            val anchorPage = state.closestPageToPosition(anchorPosition)
+            anchorPage?.prevKey?.plus(1) ?: anchorPage?.nextKey?.minus(1)
+        }
     }
 
+    /*
+    PagingSource sınıfı, verinin nasıl getirileceğini anlatan katmandır.
+
+    load() Fonksiyonu - Asıl Veri Yükleme Burada
+    params.key: Şu anda hangi sayfayı istiyoruz? (İlk yüklemede null, biz 1 veriyoruz.)
+
+    getRefreshKey() - Liste Yenilenince Nereden Başlasın?
+    Refresh işlemi kullanıcı listeyi yenilediğinde (örneğin pull-to-refresh) PagingSource’un hangi sayfadan başlaması gerektiğini belirler.
+    En yakın görünür öğenin bulunduğu sayfayı hesaplayarak, oradan yeniden yükleme yapılması sağlanır.
+    anchorPosition: Kullanıcının şu anki scroll ettiği pozisyon.
+    closestPageToPosition: Bu pozisyona en yakın sayfayı bulur.
+    Ona göre sayfa numarasını tekrar yüklemek için karar veririz.
+     */
 }
