@@ -1,16 +1,15 @@
 package com.abdulkadirkara.paginationsimple.ui
 
-import android.annotation.SuppressLint
 import android.os.Bundle
+import android.view.Gravity
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.isVisible
+import android.widget.FrameLayout
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.paging.CombinedLoadStates
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.abdulkadirkara.paginationsimple.databinding.FragmentHomeBinding
@@ -68,14 +67,61 @@ class HomeFragment : Fragment() {
 
     private fun observeLoadStates() {
         userPagingAdapter.addLoadStateListener { loadState ->
-            val isLoading = loadState.source.refresh is LoadState.Loading
-            val isError = loadState.source.refresh is LoadState.Error
-            val isEmpty = loadState.source.refresh is LoadState.NotLoading &&
-                    loadState.append.endOfPaginationReached &&
-                    userPagingAdapter.itemCount == 0
+            val refreshState = loadState.source.refresh
+            val appendState = loadState.source.append
 
-            updateUIState(isLoading, isError, isEmpty, loadState)
-            /*
+            val isRefreshLoading = refreshState is LoadState.Loading
+            val isRefreshError = refreshState is LoadState.Error
+            val isAppendLoading = appendState is LoadState.Loading
+            val isAppendError = appendState is LoadState.Error
+
+            // Her durumda önce görünürlükleri gizle
+            binding.progressBarCenter.visibility = View.GONE
+            binding.errorLayout.visibility = View.GONE
+            // Normalde paddingBottom sıfırla
+            setRecyclerViewPaddingBottom(0)
+
+            when {
+                // REFRESH YÜKLENİYOR
+                isRefreshLoading -> {
+                    binding.progressBarCenter.visibility = View.VISIBLE
+                    setGravity(binding.progressBarCenter, Gravity.CENTER)
+                }
+
+                // REFRESH HATA
+                isRefreshError -> {
+                    binding.errorLayout.visibility = View.VISIBLE
+                    setGravity(binding.errorLayout, Gravity.CENTER)
+                    binding.textError.text = (refreshState as LoadState.Error).error.localizedMessage
+                }
+
+                // APPEND YÜKLENİYOR
+                isAppendLoading -> {
+                    binding.progressBarCenter.visibility = View.VISIBLE
+                    setGravity(binding.progressBarCenter, Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL)
+                    // ProgressBar yüksekliğini kullanarak padding ayarla
+                    binding.progressBarCenter.post { //post { ... } bloğu görünümün layout sonrası ölçüsünü alabilmek için kullanılır.
+                        val height = binding.progressBarCenter.height
+                        setRecyclerViewPaddingBottom(height)
+                    }
+                }
+
+                // APPEND HATA
+                isAppendError -> {
+                    binding.errorLayout.visibility = View.VISIBLE
+                    setGravity(binding.errorLayout, Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL)
+                    binding.textError.text = (appendState as LoadState.Error).error.localizedMessage
+                    // Error layout yüksekliğini kullanarak padding ayarla
+                    binding.errorLayout.post {
+                        val height = binding.errorLayout.height
+                        setRecyclerViewPaddingBottom(height)
+                    }
+                }
+            }
+        }
+    }
+
+    /*
         //Listener ile load state kullanımı
         //1)load state flow
         LoadState(
@@ -141,30 +187,21 @@ class HomeFragment : Fragment() {
                 }
             }
             */
-            //3) LoadStateAdapter kullanmak
-        }
+    //3) LoadStateAdapter kullanmak
+
+    private fun setGravity(view: View, gravity: Int) {
+        val layoutParams = view.layoutParams as FrameLayout.LayoutParams
+        layoutParams.gravity = gravity
+        view.layoutParams = layoutParams
     }
 
-    @SuppressLint("SetTextI18n")
-    private fun updateUIState(
-        isLoading: Boolean,
-        isError: Boolean,
-        isEmpty: Boolean,
-        loadState: CombinedLoadStates
-    ) {
-        binding.progressBarCenter.isVisible = isLoading
-        binding.errorLayout.isVisible = isError || isEmpty
-
-        when {
-            isError -> {
-                val error = (loadState.source.refresh as? LoadState.Error)?.error
-                binding.textError.text = error?.localizedMessage ?: "Bilinmeyen bir hata"
-            }
-
-            isEmpty -> {
-                binding.textError.text = "Hiç kullanıcı bulunamadı"
-            }
-        }
+    private fun setRecyclerViewPaddingBottom(paddingInPx: Int) {
+        binding.recyclerView.setPadding(
+            binding.recyclerView.paddingLeft,
+            binding.recyclerView.paddingTop,
+            binding.recyclerView.paddingRight,
+            paddingInPx
+        )
     }
 
     private fun handleRetry() {
