@@ -1,16 +1,21 @@
 package com.abdulkadirkara.paginationsimple.ui
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.paging.CombinedLoadStates
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.abdulkadirkara.paginationsimple.databinding.FragmentHomeBinding
 import com.abdulkadirkara.paginationsimple.ui.adapter.UserPagingAdapter
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -34,38 +39,43 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        setupRecyclerView()
-        loadData()
+        initRecyclerView()
+        setupAdapterListeners()
+        observeData()
+        handleRetry()
+        observeLoadStates()
     }
 
-    private fun loadData() {
+    private fun observeData() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.users.collectLatest {
                 userPagingAdapter.submitData(it)
             }
         }
-
-//        viewLifecycleOwner.lifecycleScope.launch {
-//            viewModel.userListFlow.collectLatest {
-//                userPagingAdapter.submitData(it)
-//            }
-//        }
     }
 
-    private fun setupRecyclerView() {
-        binding.recyclerView.apply {
-            adapter = userPagingAdapter
-            layoutManager = LinearLayoutManager(requireContext())
-        }
+    private fun initRecyclerView() = binding.recyclerView.apply {
+        adapter = userPagingAdapter
+        layoutManager = LinearLayoutManager(requireContext())
+    }
 
+    private fun setupAdapterListeners(){
         userPagingAdapter.onItemClick = {
             val action = HomeFragmentDirections.actionHomeFragmentToDetailFragment(it)
             findNavController().navigate(action)
         }
+    }
 
+    private fun observeLoadStates() {
+        userPagingAdapter.addLoadStateListener { loadState ->
+            val isLoading = loadState.source.refresh is LoadState.Loading
+            val isError = loadState.source.refresh is LoadState.Error
+            val isEmpty = loadState.source.refresh is LoadState.NotLoading &&
+                    loadState.append.endOfPaginationReached &&
+                    userPagingAdapter.itemCount == 0
 
-        /*
+            updateUIState(isLoading, isError, isEmpty, loadState)
+            /*
         //Listener ile load state kullanımı
         //1)load state flow
         LoadState(
@@ -133,6 +143,37 @@ class HomeFragment : Fragment() {
             */
             //3) LoadStateAdapter kullanmak
         }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun updateUIState(
+        isLoading: Boolean,
+        isError: Boolean,
+        isEmpty: Boolean,
+        loadState: CombinedLoadStates
+    ) {
+        binding.progressBarCenter.isVisible = isLoading
+        binding.errorLayout.isVisible = isError || isEmpty
+
+        when {
+            isError -> {
+                val error = (loadState.source.refresh as? LoadState.Error)?.error
+                binding.textError.text = error?.localizedMessage ?: "Bilinmeyen bir hata"
+            }
+
+            isEmpty -> {
+                binding.textError.text = "Hiç kullanıcı bulunamadı"
+            }
+        }
+    }
+
+    private fun handleRetry() {
+        binding.buttonRetry.setOnClickListener {
+            //retry() ile tekrar yükleme yapılır bunu da pagingsource'daki loglarla görebiliriz.
+            userPagingAdapter.retry()
+            Snackbar.make(it, "Retry called", Snackbar.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

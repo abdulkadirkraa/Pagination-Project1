@@ -1,5 +1,6 @@
 package com.abdulkadirkara.paginationsimple.data.network
 
+import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.abdulkadirkara.paginationsimple.data.model.Result
@@ -12,6 +13,7 @@ class RandomUserPagingSource(
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Result> {
         val page = params.key ?: 1
+        Log.d("PagingSource", "LOAD called - page: $page")
 
         return try {
             val response = apiService.getUsers(page, PAGE_SIZE)
@@ -22,6 +24,7 @@ class RandomUserPagingSource(
                 nextKey = if (response.results.isEmpty()) null else page.plus(1)
             )
         } catch (e: Exception) {
+            Log.e("PagingSource", "Load error: ${e.message}")
             LoadResult.Error(e)
         }
     }
