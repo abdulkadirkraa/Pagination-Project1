@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Bu bir placeholder, Kotlin'de gender'a göre pembe/mavi seçilecek -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#DCEBFF" /> <!-- Açık mavi veya #FFE1E9 pembe olabilir -->
+</shape>

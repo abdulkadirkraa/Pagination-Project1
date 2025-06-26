@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/detailContainer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_male_female"
+    tools:context=".ui.DetailFragment">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardUserDetail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="24dp"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- Profil Resmi ve İsim -->
+            <ImageView
+                android:id="@+id/imageProfile"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_gravity="center"
+                android:scaleType="centerCrop"
+                android:layout_marginBottom="12dp"
+                tools:src="https://randomuser.me/api/portraits/women/1.jpg" />
+
+            <TextView
+                android:id="@+id/textFullName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textAppearance="?attr/textAppearanceHeadline5"
+                android:textColor="#222222"
+                android:textStyle="bold"
+                android:layout_marginBottom="20dp"
+                tools:text="Ms. Jane Doe" />
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#CCCCCC"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Scroll Edilebilir Bilgiler -->
+            <ScrollView
+                android:id="@+id/scrollUserInfo"
+                android:layout_width="match_parent"
+                android:layout_height="350dp"
+                android:fillViewport="true">
+
+                <LinearLayout
+                    android:id="@+id/linearUserInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- İletişim Başlığı -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="İletişim"
+                        android:textStyle="bold"
+                        android:textSize="20sp"
+                        android:textColor="#333"
+                        android:layout_marginBottom="8dp" />
+
+                    <TextView
+                        android:id="@+id/textEmail"
+                        style="@style/UserInfoText"
+                        tools:text="Email: jane.doe@example.com" />
+
+                    <TextView
+                        android:id="@+id/textPhone"
+                        style="@style/UserInfoText"
+                        tools:text="Phone: 123-456-7890" />
+
+                    <TextView
+                        android:id="@+id/textCell"
+                        style="@style/UserInfoText"
+                        tools:text="Cell: 987-654-3210" />
+
+                    <!-- Boşluk -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="16dp" />
+
+                    <!-- Kişisel Bilgiler Başlığı -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Kişisel Bilgiler"
+                        android:textStyle="bold"
+                        android:textSize="20sp"
+                        android:textColor="#333"
+                        android:layout_marginBottom="8dp" />
+
+                    <TextView
+                        android:id="@+id/textGender"
+                        style="@style/UserInfoText"
+                        tools:text="Gender: female" />
+
+                    <TextView
+                        android:id="@+id/textAge"
+                        style="@style/UserInfoText"
+                        tools:text="Age: 29" />
+
+                    <TextView
+                        android:id="@+id/textDob"
+                        style="@style/UserInfoText"
+                        tools:text="Doğum Tarihi: 1994-01-01" />
+
+                    <TextView
+                        android:id="@+id/textNat"
+                        style="@style/UserInfoText"
+                        tools:text="Nationality: US" />
+
+                    <!-- Boşluk -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="16dp" />
+
+                    <!-- Adres Başlığı -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Adres"
+                        android:textStyle="bold"
+                        android:textSize="20sp"
+                        android:textColor="#333"
+                        android:layout_marginBottom="8dp" />
+
+                    <TextView
+                        android:id="@+id/textLocation"
+                        style="@style/UserInfoText"
+                        tools:text="Location: New York, USA" />
+
+                    <TextView
+                        android:id="@+id/textStreet"
+                        style="@style/UserInfoText"
+                        tools:text="Street: 123 Main St" />
+
+                    <TextView
+                        android:id="@+id/textCity"
+                        style="@style/UserInfoText"
+                        tools:text="City: New York" />
+
+                    <TextView
+                        android:id="@+id/textState"
+                        style="@style/UserInfoText"
+                        tools:text="State: NY" />
+
+                    <TextView
+                        android:id="@+id/textCountry"
+                        style="@style/UserInfoText"
+                        tools:text="Country: USA" />
+
+                    <TextView
+                        android:id="@+id/textPostcode"
+                        style="@style/UserInfoText"
+                        tools:text="Postcode: 10001" />
+
+                    <!-- Boşluk -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="16dp" />
+
+                    <!-- Kullanıcı Bilgileri Başlığı -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Kullanıcı Bilgileri"
+                        android:textStyle="bold"
+                        android:textSize="20sp"
+                        android:textColor="#333"
+                        android:layout_marginBottom="8dp" />
+
+                    <TextView
+                        android:id="@+id/textUsername"
+                        style="@style/UserInfoText"
+                        tools:text="Username: janedoe123" />
+
+                    <TextView
+                        android:id="@+id/textRegisteredDate"
+                        style="@style/UserInfoText"
+                        tools:text="Registered: 2015-06-15" />
+
+                    <TextView
+                        android:id="@+id/textLoginUUID"
+                        style="@style/UserInfoText"
+                        tools:text="UUID: 1234-5678-9012" />
+
+                    <!-- Boşluk -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="24dp" />
+
+                </LinearLayout>
+            </ScrollView>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+</FrameLayout>
+
