@@ -27,6 +27,50 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel: HomeViewModel by viewModels()
     @Inject lateinit var userPagingAdapter: UserPagingAdapter
+    // Kullanıcının swipe ile yenileyip yenilemediğini takip eder
+    private var isUserSwipeRefreshing = false
+
+    /*
+    SwipeRefreshLayout, Google’ın destek kütüphanelerinde sunduğu bir ViewGroup’tur.
+    İçerisine bir tane scrollable (kaydırılabilir) view alır (örneğin RecyclerView, ScrollView, ListView, vb.).
+    Kullanıcı içeriği yukarıdan aşağı kaydırınca “refresh gesture” (yenileme hareketi) algılanır ve onRefresh() fonksiyonu tetiklenir.
+    SwipeRefreshLayout'ın setRefreshing(true/false) metoduyla loading durumunu manuel kontrol ederiz.
+
+    binding.swipeRefreshLayout.setOnRefreshListener {
+        // Veri yenileme işlemleri başlatılır
+        viewModel.refreshData()
+    }
+    --
+    // Loading başlat
+    binding.swipeRefreshLayout.isRefreshing = true
+
+    // ViewModel üzerinden veri yüklenir
+    viewModel.refreshData()
+    --
+    viewModel.data.observe(viewLifecycleOwner) { data ->
+        adapter.submitList(data)
+
+        // Yenileme tamamlandıktan sonra animasyon durdurulur
+        binding.swipeRefreshLayout.isRefreshing = false
+    }
+    --
+    Paging 3 kütüphanesiyle çalışıyorsan, swipe-to-refresh ile PagingData'yı yenilemek için:
+    binding.swipeRefreshLayout.setOnRefreshListener {
+        adapter.refresh() // PagingAdapter fonksiyonu
+    }
+    Ardından adapter'ın loadStateFlow'unu kullanarak animasyonu durdur:
+    adapter.loadStateFlow.collectLatest {
+        binding.swipeRefreshLayout.isRefreshing = it.refresh is LoadState.Loading
+    }
+    --
+    adapter.refresh() (özellikle Paging 3 kütüphanesinde PagingDataAdapter ya da AsyncPagingDataDiffer kullanıyorsan), veri kaynağını baştan yüklemek anlamına gelir.
+    Yani kullanıcının manuel olarak "yenileme" (refresh) yapması gibi davranır.
+    Mevcut PagingData'yı yeniden tetikler.
+    PagingSource içindeki load() fonksiyonunu LoadType.REFRESH ile tekrar çağırır.
+    İlk sayfa verilerini yeniden yükler.
+    Mevcut PagingData silinir ve UI'ya yeni veriler yüklenmeye başlanır.
+    LoadStateListener varsa, önce Loading, sonra NotLoading ya da Error durumlarına geçilir.
+     */
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,7 +87,31 @@ class HomeFragment : Fragment() {
         observeData()
         handleRetry()
         observeLoadStates()
+        setupSwipeRefresh()
     }
+
+    private fun setupSwipeRefresh() {
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            isUserSwipeRefreshing = true
+            userPagingAdapter.refresh() // PagingAdapter içindeki veri kaynağını yeniden başlatır
+
+        }
+
+        // Yüklenme durumuna göre swipe-to-refresh göstergesini kapat
+        viewLifecycleOwner.lifecycleScope.launch {
+            userPagingAdapter.loadStateFlow.collectLatest { loadStates ->
+                // Sadece kullanıcı swipe ettiyse isRefreshing gösterilsin
+                binding.swipeRefreshLayout.isRefreshing =
+                    isUserSwipeRefreshing && loadStates.source.refresh is LoadState.Loading
+
+                // Eğer yükleme tamamlandıysa flag sıfırla
+                if (loadStates.source.refresh is LoadState.NotLoading) {
+                    isUserSwipeRefreshing = false
+                }
+            }
+        }
+    }
+
 
     private fun observeData() {
         viewLifecycleOwner.lifecycleScope.launch {
@@ -84,8 +152,18 @@ class HomeFragment : Fragment() {
             when {
                 // REFRESH YÜKLENİYOR
                 isRefreshLoading -> {
-                    binding.progressBarCenter.visibility = View.VISIBLE
-                    setGravity(binding.progressBarCenter, Gravity.CENTER)
+                    if (isUserSwipeRefreshing){
+                        // Kullanıcı swipe etmiş, bırak gösterilsin
+                        // Center progressbar'ı göstermiyoruz
+                        binding.progressBarCenter.visibility = View.GONE
+                    } else {
+                        // İlk açılış yüklemesi: swipe olmamış
+                        binding.progressBarCenter.visibility = View.VISIBLE
+                        setGravity(binding.progressBarCenter, Gravity.CENTER)
+
+                        // SwipeRefreshLayout bir bug ile açıldıysa zorla kapat
+                        binding.swipeRefreshLayout.isRefreshing = false
+                    }
                 }
 
                 // REFRESH HATA
