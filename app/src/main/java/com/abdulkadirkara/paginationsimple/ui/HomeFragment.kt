@@ -143,6 +143,8 @@ class HomeFragment : Fragment() {
             val isAppendLoading = appendState is LoadState.Loading
             val isAppendError = appendState is LoadState.Error
 
+            val isInitialLoad = userPagingAdapter.itemCount == 0
+
             // Her durumda önce görünürlükleri gizle
             binding.progressBarCenter.visibility = View.GONE
             binding.errorLayout.visibility = View.GONE
@@ -168,9 +170,20 @@ class HomeFragment : Fragment() {
 
                 // REFRESH HATA
                 isRefreshError -> {
-                    binding.errorLayout.visibility = View.VISIBLE
-                    setGravity(binding.errorLayout, Gravity.CENTER)
-                    binding.textError.text = (refreshState as LoadState.Error).error.localizedMessage
+                    if (isUserSwipeRefreshing && !isInitialLoad) {
+                        // Kullanıcı swipe etti ve önceden veri vardı => Snackbar göster
+                        val error = (refreshState as LoadState.Error).error.localizedMessage ?: "Bir şeyler yanlış gitti"
+                        Snackbar.make(binding.root, error, Snackbar.LENGTH_INDEFINITE)
+                            .setAction("Yeniden Dene") {
+                                userPagingAdapter.refresh()
+                            }
+                            .show()
+                    } else {
+                        // İlk açılışta hata olduysa error layout göster
+                        binding.errorLayout.visibility = View.VISIBLE
+                        setGravity(binding.errorLayout, Gravity.CENTER)
+                        binding.textError.text = (refreshState as LoadState.Error).error.localizedMessage
+                    }
                 }
 
                 // APPEND YÜKLENİYOR
