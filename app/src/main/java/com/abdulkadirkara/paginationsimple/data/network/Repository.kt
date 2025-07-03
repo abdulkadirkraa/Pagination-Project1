@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 class Repository @Inject constructor(private val apiService: ApiService) {
 
-     fun getUsers() : Flow<PagingData<Result>> {
+     fun getUsers(gender: String?, nat: String?) : Flow<PagingData<Result>> {
         return Pager(
             config = PagingConfig(
                 //Zorunludur. Ekranda görünenin 3-5 katı yüklesin her yüklemede.
@@ -34,7 +34,7 @@ class Repository @Inject constructor(private val apiService: ApiService) {
                 maxSize = MAX_SIZE
             ),
             pagingSourceFactory = {
-                RandomUserPagingSource(apiService)
+                RandomUserPagingSource(apiService, gender, nat)
             }
         ).flow
     }

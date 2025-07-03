@@ -8,15 +8,17 @@ import com.abdulkadirkara.paginationsimple.data.service.ApiService
 import com.abdulkadirkara.paginationsimple.util.Constants.PAGE_SIZE
 
 class RandomUserPagingSource(
-    private val apiService: ApiService
+    private val apiService: ApiService,
+    private val gender: String? = null,
+    private val nat: String? = null
 ) : PagingSource<Int, Result>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Result> {
         val page = params.key ?: 1
-        Log.d("PagingSource", "LOAD called - page: $page")
+        Log.d("PagingSource", "Loading page=$page gender=$gender nat=$nat")
 
         return try {
-            val response = apiService.getUsers(page, PAGE_SIZE)
+            val response = apiService.getUsers(page, PAGE_SIZE, gender, nat)
 
             LoadResult.Page(
                 data = response.results,

@@ -8,7 +8,8 @@ interface ApiService {
     @GET("api/")
     suspend fun getUsers(
         @Query("page") page: Int,
-        @Query("results") results: Int
+        @Query("results") results: Int,
+        @Query("gender") gender: String? = null,
+        @Query("nat") nat: String? = null,
     ): UserResponse
-
 }

@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
@@ -25,7 +25,7 @@ class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: HomeViewModel by viewModels()
+    private val viewModel: HomeViewModel by activityViewModels()
     @Inject lateinit var userPagingAdapter: UserPagingAdapter
     // Kullanıcının swipe ile yenileyip yenilemediğini takip eder
     private var isUserSwipeRefreshing = false
@@ -88,6 +88,13 @@ class HomeFragment : Fragment() {
         handleRetry()
         observeLoadStates()
         setupSwipeRefresh()
+        fabClickListener()
+    }
+
+    private fun fabClickListener(){
+        binding.fabFilter.setOnClickListener {
+            FilterBottomSheetFragment().show(childFragmentManager, "FilterDialogFragment")
+        }
     }
 
     private fun setupSwipeRefresh() {
@@ -99,6 +106,8 @@ class HomeFragment : Fragment() {
 
         // Yüklenme durumuna göre swipe-to-refresh göstergesini kapat
         viewLifecycleOwner.lifecycleScope.launch {
+            //adapter.refresh() → PagingSource.invalidate() tetikler, verileri baştan çeker.
+            //loadStateFlow → arka planda olan Paging durumlarını izlemek için çok önemlidir.
             userPagingAdapter.loadStateFlow.collectLatest { loadStates ->
                 // Sadece kullanıcı swipe ettiyse isRefreshing gösterilsin
                 binding.swipeRefreshLayout.isRefreshing =
@@ -163,7 +172,7 @@ class HomeFragment : Fragment() {
                         binding.progressBarCenter.visibility = View.VISIBLE
                         setGravity(binding.progressBarCenter, Gravity.CENTER)
 
-                        // SwipeRefreshLayout bir bug ile açıldıysa zorla kapat
+                        // SwipeRefreshLayout açıldıysa zorla kapat
                         binding.swipeRefreshLayout.isRefreshing = false
                     }
                 }

@@ -1,6 +1,6 @@
 package com.abdulkadirkara.paginationsimple.data.model
 
 data class UserResponse(
-    val info: İnfo,
+    val info: Info,
     val results: List<Result>
 )

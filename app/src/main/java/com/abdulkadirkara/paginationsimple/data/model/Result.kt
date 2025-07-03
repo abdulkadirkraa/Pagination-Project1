@@ -9,7 +9,7 @@ data class Result(
     val dob: Dob,
     val email: String,
     val gender: String,
-    val id: İd,
+    val id: Id,
     val location: Location,
     val login: Login,
     val name: Name,

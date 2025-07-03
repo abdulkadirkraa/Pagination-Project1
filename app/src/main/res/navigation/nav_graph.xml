@@ -21,6 +21,7 @@
         tools:layout="@layout/fragment_detail" >
         <argument
             android:name="user"
-            app:argType="com.abdulkadirkara.paginationsimple.data.model.Result" />
+            app:argType="com.abdulkadirkara.paginationsimple.data.model.Result"
+            />
     </fragment>
 </navigation>
