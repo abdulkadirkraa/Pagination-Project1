@@ -27,6 +27,7 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel: HomeViewModel by activityViewModels()
     @Inject lateinit var userPagingAdapter: UserPagingAdapter
+
     // Kullanıcının swipe ile yenileyip yenilemediğini takip eder
     private var isUserSwipeRefreshing = false
 

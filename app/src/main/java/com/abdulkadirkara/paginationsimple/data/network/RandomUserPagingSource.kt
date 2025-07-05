@@ -12,6 +12,15 @@ class RandomUserPagingSource(
     private val gender: String? = null,
     private val nat: String? = null
 ) : PagingSource<Int, Result>() {
+    /*
+    Her yeni PagingSource, Pager'ın pagingSourceFactory fonksiyonu tarafından çağrılır ve filtreler o anda güncel haliyle verilir.
+    API çağrısı her load fonksiyonunda yapılır, yani PagingSource her sayfa çekişinde filtreleri bilmek zorunda.
+
+    gender ve nat nullable, çünkü filtresiz çağrı da yapılabilir.
+    Ama PagingSource oluşturulurken o anda geçerli filtreyi bilmesi gerekiyor, çünkü her load çağrısı filtrelere göre yapılacak.
+    Bu yüzden PagingSource'un constructor'ına gender ve nat ekleniyor ve orada saklanıyor.
+    Repository içinde ise, filtre güncellendiğinde yeni bir PagingSource oluşturuluyor (yeni filtreyle)
+     */
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Result> {
         val page = params.key ?: 1
@@ -32,6 +41,7 @@ class RandomUserPagingSource(
     }
 
     override fun getRefreshKey(state: PagingState<Int, Result>): Int? {
+        Log.d("PagingSource", "getRefreshKey called")
         return state.anchorPosition?.let { anchorPosition ->
             val anchorPage = state.closestPageToPosition(anchorPosition)
             anchorPage?.prevKey?.plus(1) ?: anchorPage?.nextKey?.minus(1)

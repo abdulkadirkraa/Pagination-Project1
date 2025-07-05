@@ -32,9 +32,10 @@ class DetailFragment : Fragment() {
 
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         val user = args.user
 
-        // XML'e bind işlemleri
         binding.apply {
             // Coil ile yuvarlatılmış profil resmi yükle
             imageProfile.loadImage(

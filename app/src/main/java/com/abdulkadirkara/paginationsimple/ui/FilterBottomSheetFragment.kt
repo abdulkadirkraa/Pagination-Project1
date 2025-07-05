@@ -16,6 +16,12 @@ class FilterBottomSheetFragment : BottomSheetDialogFragment() {
     private var _binding: FragmentFilterBottomSheetBinding? = null
     private val binding get() = _binding!!
     private val viewModel: HomeViewModel by activityViewModels()
+    /*
+    filtreleri kaydettiğiniz SavedStateHandle’i okuyup kullanırken HomeFragment ile FilterBottomSheetFragment’ın farklı ViewModel örnekleri kullanıyor olabilirsiniz.
+    FilterBottomSheetFragment’ta by activityViewModels() ile Activity scope’unda bir HomeViewModel alıyorsunuz.
+    Muhtemelen HomeFragment’ta ise by viewModels() (fragment scope) kullanıyorsunuz, bu da FilterBottomSheetFragment’ın yazdığı state’i görmüyor.
+    Sonuç olarak applyFilter(...) ile SavedStateHandle’e yazdığınız gender ve nat değerleri aslında bir başka ViewModel örneğine gidiyor, HomeFragment’ın kullandığı ViewModel’a değil. O yüzden PagingSource’a hep null, null gidiyor.
+     */
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -63,7 +69,10 @@ class FilterBottomSheetFragment : BottomSheetDialogFragment() {
             }
 
             viewModel.applyFilter(gender, selectedNats)
-            (parentFragment as? HomeFragment)?.userPagingAdapter?.refresh()
+            // (parentFragment as? HomeFragment)?.userPagingAdapter?.refresh()
+            //Filtre uygulandığında adapter’ı yeniden başlatmak (yeniden PagingSource oluşturmak) için adapter.refresh() çağırın:
+            //Eğer userPagingAdapter’ı doğrudan alamıyorsanız, HomeFragment içinde viewModel.users flow’u zaten collectLatest ile dinliyor ve yeni PagingData geldiğinde otomatik olarak submitData ediyor.
+            //Yine de adapter.refresh() performansı arttırabilir.
             dismiss()
         }
 
